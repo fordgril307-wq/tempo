@@ -1,0 +1,796 @@
+{
+ "summary": {
+  "raw": {
+   "clips": 10,
+   "mae_120s_before_boil": {
+    "vision": 35.0,
+    "nameplate": 42.0,
+    "n": 10
+   },
+   "mae_60s_before_boil": {
+    "vision": 32.8,
+    "nameplate": 42.0,
+    "n": 10
+   },
+   "mae_30s_before_boil": {
+    "vision": 27.5,
+    "nameplate": 42.0,
+    "n": 10
+   },
+   "boil_detected": "10/10",
+   "boil_detect_delay_s": {
+    "mean": 0.6,
+    "max_abs": 1.0
+   },
+   "foam_warned_in_time": "5/5",
+   "foam_mean_lead_s": 20.0,
+   "foam_false_alarms": 0,
+   "pot_center_err_px_max": 8.1
+  },
+  "h264": {
+   "clips": 10,
+   "mae_120s_before_boil": {
+    "vision": 21.6,
+    "nameplate": 42.0,
+    "n": 10
+   },
+   "mae_60s_before_boil": {
+    "vision": 19.7,
+    "nameplate": 42.0,
+    "n": 10
+   },
+   "mae_30s_before_boil": {
+    "vision": 14.7,
+    "nameplate": 42.0,
+    "n": 10
+   },
+   "boil_detected": "10/10",
+   "boil_detect_delay_s": {
+    "mean": 0.6,
+    "max_abs": 1.0
+   },
+   "foam_warned_in_time": "5/5",
+   "foam_mean_lead_s": 22.0,
+   "foam_false_alarms": 0,
+   "pot_center_err_px_max": 2.0
+  },
+  "realistic": {
+   "clips": 8,
+   "mae_120s_before_boil": {
+    "vision": 32.6,
+    "nameplate": 34.5,
+    "n": 8
+   },
+   "mae_60s_before_boil": {
+    "vision": 18.1,
+    "nameplate": 34.5,
+    "n": 8
+   },
+   "mae_30s_before_boil": {
+    "vision": 7.9,
+    "nameplate": 34.5,
+    "n": 8
+   },
+   "boil_detected": "8/8",
+   "boil_detect_delay_s": {
+    "mean": 0.7,
+    "max_abs": 1.1
+   },
+   "foam_warned_in_time": "4/4",
+   "foam_mean_lead_s": 13.0,
+   "foam_false_alarms": 0,
+   "pot_center_err_px_max": 17.0
+  }
+ },
+ "detail": {
+  "raw": {
+   "per_clip": [
+    {
+     "clip": "h00",
+     "calibrated_stage_temp": {
+      "1": 76.9,
+      "2": 95.6
+     },
+     "err_120s": {
+      "vision": -61.8,
+      "nameplate": -83.7
+     },
+     "err_60s": {
+      "vision": -58.0,
+      "nameplate": -83.7
+     },
+     "err_30s": {
+      "vision": -28.0,
+      "nameplate": -83.7
+     },
+     "boil_detect_delay_s": 0.4,
+     "pot_err_px": 2.2,
+     "foam_lead_s": 16.5
+    },
+    {
+     "clip": "h01",
+     "calibrated_stage_temp": {
+      "1": 76.2,
+      "2": 95.3
+     },
+     "err_120s": {
+      "vision": 19.8,
+      "nameplate": 19.8
+     },
+     "err_60s": {
+      "vision": 19.8,
+      "nameplate": 19.8
+     },
+     "err_30s": {
+      "vision": 19.8,
+      "nameplate": 19.8
+     },
+     "boil_detect_delay_s": 0.2,
+     "pot_err_px": 1.4,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "h02",
+     "calibrated_stage_temp": {
+      "1": 76.9,
+      "2": 95.6
+     },
+     "err_120s": {
+      "vision": -36.9,
+      "nameplate": -84.6
+     },
+     "err_60s": {
+      "vision": -36.9,
+      "nameplate": -84.6
+     },
+     "err_30s": {
+      "vision": -19.7,
+      "nameplate": -84.6
+     },
+     "boil_detect_delay_s": 0.8,
+     "pot_err_px": 8.1,
+     "foam_lead_s": 21.3
+    },
+    {
+     "clip": "h03",
+     "calibrated_stage_temp": {
+      "1": 76.9,
+      "2": 95.6
+     },
+     "err_120s": {
+      "vision": -58.7,
+      "nameplate": -58.7
+     },
+     "err_60s": {
+      "vision": -29.0,
+      "nameplate": -58.7
+     },
+     "err_30s": {
+      "vision": -28.0,
+      "nameplate": -58.7
+     },
+     "boil_detect_delay_s": 0.9,
+     "pot_err_px": 1.0,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "h04",
+     "calibrated_stage_temp": {
+      "1": 76.2,
+      "2": 95.3
+     },
+     "err_120s": {
+      "vision": -40.9,
+      "nameplate": -40.9
+     },
+     "err_60s": {
+      "vision": 51.9,
+      "nameplate": -40.9
+     },
+     "err_30s": {
+      "vision": 51.9,
+      "nameplate": -40.9
+     },
+     "boil_detect_delay_s": 0.9,
+     "pot_err_px": 3.2,
+     "foam_lead_s": 21.1
+    },
+    {
+     "clip": "h05",
+     "calibrated_stage_temp": {
+      "1": 76.9,
+      "2": 95.6
+     },
+     "err_120s": {
+      "vision": 42.3,
+      "nameplate": 42.3
+     },
+     "err_60s": {
+      "vision": -33.5,
+      "nameplate": 42.3
+     },
+     "err_30s": {
+      "vision": -28.0,
+      "nameplate": 42.3
+     },
+     "boil_detect_delay_s": 0.1,
+     "pot_err_px": 7.3,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "h06",
+     "calibrated_stage_temp": {
+      "1": 76.9,
+      "2": 95.3
+     },
+     "err_120s": {
+      "vision": -32.0,
+      "nameplate": -32.0
+     },
+     "err_60s": {
+      "vision": -4.5,
+      "nameplate": -32.0
+     },
+     "err_30s": {
+      "vision": -4.5,
+      "nameplate": -32.0
+     },
+     "boil_detect_delay_s": 0.2,
+     "pot_err_px": 1.0,
+     "foam_lead_s": 20.5
+    },
+    {
+     "clip": "h07",
+     "calibrated_stage_temp": {
+      "1": 76.2,
+      "2": 95.3
+     },
+     "err_120s": {
+      "vision": -9.7,
+      "nameplate": -9.7
+     },
+     "err_60s": {
+      "vision": 43.7,
+      "nameplate": -9.7
+     },
+     "err_30s": {
+      "vision": 43.7,
+      "nameplate": -9.7
+     },
+     "boil_detect_delay_s": 0.9,
+     "pot_err_px": 1.0,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "h08",
+     "calibrated_stage_temp": {
+      "1": 76.2,
+      "2": 95.3
+     },
+     "err_120s": {
+      "vision": 39.5,
+      "nameplate": 39.5
+     },
+     "err_60s": {
+      "vision": 47.0,
+      "nameplate": 39.5
+     },
+     "err_30s": {
+      "vision": 47.0,
+      "nameplate": 39.5
+     },
+     "boil_detect_delay_s": 0.4,
+     "pot_err_px": 1.0,
+     "foam_lead_s": 20.6
+    },
+    {
+     "clip": "h09",
+     "calibrated_stage_temp": {
+      "1": 76.2,
+      "2": 95.6
+     },
+     "err_120s": {
+      "vision": -8.9,
+      "nameplate": -8.9
+     },
+     "err_60s": {
+      "vision": 4.3,
+      "nameplate": -8.9
+     },
+     "err_30s": {
+      "vision": 4.3,
+      "nameplate": -8.9
+     },
+     "boil_detect_delay_s": 1.0,
+     "pot_err_px": 1.0,
+     "foam_false_alarms": 0
+    }
+   ],
+   "summary": {
+    "clips": 10,
+    "mae_120s_before_boil": {
+     "vision": 35.0,
+     "nameplate": 42.0,
+     "n": 10
+    },
+    "mae_60s_before_boil": {
+     "vision": 32.8,
+     "nameplate": 42.0,
+     "n": 10
+    },
+    "mae_30s_before_boil": {
+     "vision": 27.5,
+     "nameplate": 42.0,
+     "n": 10
+    },
+    "boil_detected": "10/10",
+    "boil_detect_delay_s": {
+     "mean": 0.6,
+     "max_abs": 1.0
+    },
+    "foam_warned_in_time": "5/5",
+    "foam_mean_lead_s": 20.0,
+    "foam_false_alarms": 0,
+    "pot_center_err_px_max": 8.1
+   }
+  },
+  "h264": {
+   "per_clip": [
+    {
+     "clip": "h00",
+     "calibrated_stage_temp": {
+      "1": 63.0,
+      "2": 88.2
+     },
+     "err_120s": {
+      "vision": -31.4,
+      "nameplate": -83.7
+     },
+     "err_60s": {
+      "vision": -40.9,
+      "nameplate": -83.7
+     },
+     "err_30s": {
+      "vision": -28.0,
+      "nameplate": -83.7
+     },
+     "boil_detect_delay_s": 0.4,
+     "pot_err_px": 1.4,
+     "foam_lead_s": 22.5
+    },
+    {
+     "clip": "h01",
+     "calibrated_stage_temp": {
+      "1": 61.7,
+      "2": 87.3
+     },
+     "err_120s": {
+      "vision": 19.8,
+      "nameplate": 19.8
+     },
+     "err_60s": {
+      "vision": 22.9,
+      "nameplate": 19.8
+     },
+     "err_30s": {
+      "vision": 22.9,
+      "nameplate": 19.8
+     },
+     "boil_detect_delay_s": 0.2,
+     "pot_err_px": 1.4,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "h02",
+     "calibrated_stage_temp": {
+      "1": 63.0,
+      "2": 88.2
+     },
+     "err_120s": {
+      "vision": -25.3,
+      "nameplate": -84.6
+     },
+     "err_60s": {
+      "vision": -11.5,
+      "nameplate": -84.6
+     },
+     "err_30s": {
+      "vision": -11.5,
+      "nameplate": -84.6
+     },
+     "boil_detect_delay_s": 0.8,
+     "pot_err_px": 1.4,
+     "foam_lead_s": 21.3
+    },
+    {
+     "clip": "h03",
+     "calibrated_stage_temp": {
+      "1": 61.7,
+      "2": 87.3
+     },
+     "err_120s": {
+      "vision": 9.4,
+      "nameplate": -58.7
+     },
+     "err_60s": {
+      "vision": 9.4,
+      "nameplate": -58.7
+     },
+     "err_30s": {
+      "vision": 9.4,
+      "nameplate": -58.7
+     },
+     "boil_detect_delay_s": 0.9,
+     "pot_err_px": 1.4,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "h04",
+     "calibrated_stage_temp": {
+      "1": 61.7,
+      "2": 87.3
+     },
+     "err_120s": {
+      "vision": 34.0,
+      "nameplate": -40.9
+     },
+     "err_60s": {
+      "vision": 34.0,
+      "nameplate": -40.9
+     },
+     "err_30s": {
+      "vision": 25.6,
+      "nameplate": -40.9
+     },
+     "boil_detect_delay_s": 0.9,
+     "pot_err_px": 1.0,
+     "foam_lead_s": 22.1
+    },
+    {
+     "clip": "h05",
+     "calibrated_stage_temp": {
+      "1": 63.0,
+      "2": 88.2
+     },
+     "err_120s": {
+      "vision": -21.2,
+      "nameplate": 42.3
+     },
+     "err_60s": {
+      "vision": -21.2,
+      "nameplate": 42.3
+     },
+     "err_30s": {
+      "vision": -10.8,
+      "nameplate": 42.3
+     },
+     "boil_detect_delay_s": 0.1,
+     "pot_err_px": 1.4,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "h06",
+     "calibrated_stage_temp": {
+      "1": 63.0,
+      "2": 87.3
+     },
+     "err_120s": {
+      "vision": -11.9,
+      "nameplate": -32.0
+     },
+     "err_60s": {
+      "vision": -11.9,
+      "nameplate": -32.0
+     },
+     "err_30s": {
+      "vision": 1.2,
+      "nameplate": -32.0
+     },
+     "boil_detect_delay_s": 0.2,
+     "pot_err_px": 1.0,
+     "foam_lead_s": 22.5
+    },
+    {
+     "clip": "h07",
+     "calibrated_stage_temp": {
+      "1": 63.0,
+      "2": 88.2
+     },
+     "err_120s": {
+      "vision": -14.7,
+      "nameplate": -9.7
+     },
+     "err_60s": {
+      "vision": -23.5,
+      "nameplate": -9.7
+     },
+     "err_30s": {
+      "vision": -23.5,
+      "nameplate": -9.7
+     },
+     "boil_detect_delay_s": 0.9,
+     "pot_err_px": 1.0,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "h08",
+     "calibrated_stage_temp": {
+      "1": 61.7,
+      "2": 88.2
+     },
+     "err_120s": {
+      "vision": 32.9,
+      "nameplate": 39.5
+     },
+     "err_60s": {
+      "vision": -6.0,
+      "nameplate": 39.5
+     },
+     "err_30s": {
+      "vision": -6.0,
+      "nameplate": 39.5
+     },
+     "boil_detect_delay_s": 0.4,
+     "pot_err_px": 1.0,
+     "foam_lead_s": 21.6
+    },
+    {
+     "clip": "h09",
+     "calibrated_stage_temp": {
+      "1": 61.7,
+      "2": 87.3
+     },
+     "err_120s": {
+      "vision": 15.7,
+      "nameplate": -8.9
+     },
+     "err_60s": {
+      "vision": 15.7,
+      "nameplate": -8.9
+     },
+     "err_30s": {
+      "vision": 7.9,
+      "nameplate": -8.9
+     },
+     "boil_detect_delay_s": 1.0,
+     "pot_err_px": 2.0,
+     "foam_false_alarms": 0
+    }
+   ],
+   "summary": {
+    "clips": 10,
+    "mae_120s_before_boil": {
+     "vision": 21.6,
+     "nameplate": 42.0,
+     "n": 10
+    },
+    "mae_60s_before_boil": {
+     "vision": 19.7,
+     "nameplate": 42.0,
+     "n": 10
+    },
+    "mae_30s_before_boil": {
+     "vision": 14.7,
+     "nameplate": 42.0,
+     "n": 10
+    },
+    "boil_detected": "10/10",
+    "boil_detect_delay_s": {
+     "mean": 0.6,
+     "max_abs": 1.0
+    },
+    "foam_warned_in_time": "5/5",
+    "foam_mean_lead_s": 22.0,
+    "foam_false_alarms": 0,
+    "pot_center_err_px_max": 2.0
+   }
+  },
+  "realistic": {
+   "per_clip": [
+    {
+     "clip": "r00",
+     "calibrated_stage_temp": {
+      "1": 72.2,
+      "2": 89.9
+     },
+     "err_120s": {
+      "vision": 26.1,
+      "nameplate": 26.1
+     },
+     "err_60s": {
+      "vision": 15.4,
+      "nameplate": 26.1
+     },
+     "err_30s": {
+      "vision": 15.4,
+      "nameplate": 26.1
+     },
+     "boil_detect_delay_s": 0.3,
+     "pot_err_px": 15.0,
+     "foam_lead_s": 12.0
+    },
+    {
+     "clip": "r01",
+     "calibrated_stage_temp": {
+      "1": 72.2,
+      "2": 89.9
+     },
+     "err_120s": {
+      "vision": 80.5,
+      "nameplate": 80.5
+     },
+     "err_60s": {
+      "vision": 7.1,
+      "nameplate": 80.5
+     },
+     "err_30s": {
+      "vision": 7.1,
+      "nameplate": 80.5
+     },
+     "boil_detect_delay_s": 1.0,
+     "pot_err_px": 15.0,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "r02",
+     "calibrated_stage_temp": {
+      "1": 72.5,
+      "2": 90.8
+     },
+     "err_120s": {
+      "vision": 15.5,
+      "nameplate": 15.5
+     },
+     "err_60s": {
+      "vision": -6.5,
+      "nameplate": 15.5
+     },
+     "err_30s": {
+      "vision": -7.8,
+      "nameplate": 15.5
+     },
+     "boil_detect_delay_s": 0.6,
+     "pot_err_px": 16.0,
+     "foam_lead_s": 13.1
+    },
+    {
+     "clip": "r03",
+     "calibrated_stage_temp": {
+      "1": 72.2,
+      "2": 90.8
+     },
+     "err_120s": {
+      "vision": 20.3,
+      "nameplate": -23.8
+     },
+     "err_60s": {
+      "vision": -9.3,
+      "nameplate": -23.8
+     },
+     "err_30s": {
+      "vision": -9.3,
+      "nameplate": -23.8
+     },
+     "boil_detect_delay_s": 0.5,
+     "pot_err_px": 15.0,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "r04",
+     "calibrated_stage_temp": {
+      "1": 72.2,
+      "2": 89.9
+     },
+     "err_120s": {
+      "vision": 2.3,
+      "nameplate": 14.5
+     },
+     "err_60s": {
+      "vision": 2.3,
+      "nameplate": 14.5
+     },
+     "err_30s": {
+      "vision": 9.1,
+      "nameplate": 14.5
+     },
+     "boil_detect_delay_s": 0.7,
+     "pot_err_px": 16.0,
+     "foam_lead_s": 14.7
+    },
+    {
+     "clip": "r05",
+     "calibrated_stage_temp": {
+      "1": 72.5,
+      "2": 90.8
+     },
+     "err_120s": {
+      "vision": 46.5,
+      "nameplate": 46.5
+     },
+     "err_60s": {
+      "vision": 46.5,
+      "nameplate": 46.5
+     },
+     "err_30s": {
+      "vision": -0.9,
+      "nameplate": 46.5
+     },
+     "boil_detect_delay_s": 0.1,
+     "pot_err_px": 15.0,
+     "foam_false_alarms": 0
+    },
+    {
+     "clip": "r06",
+     "calibrated_stage_temp": {
+      "1": 72.5,
+      "2": 89.9
+     },
+     "err_120s": {
+      "vision": -17.3,
+      "nameplate": -17.3
+     },
+     "err_60s": {
+      "vision": -6.1,
+      "nameplate": -17.3
+     },
+     "err_30s": {
+      "vision": -6.1,
+      "nameplate": -17.3
+     },
+     "boil_detect_delay_s": 0.9,
+     "pot_err_px": 14.0,
+     "foam_lead_s": 12.3
+    },
+    {
+     "clip": "r07",
+     "calibrated_stage_temp": {
+      "1": 72.5,
+      "2": 90.8
+     },
+     "err_120s": {
+      "vision": 52.0,
+      "nameplate": 52.0
+     },
+     "err_60s": {
+      "vision": 52.0,
+      "nameplate": 52.0
+     },
+     "err_30s": {
+      "vision": -7.3,
+      "nameplate": 52.0
+     },
+     "boil_detect_delay_s": 1.1,
+     "pot_err_px": 17.0,
+     "foam_false_alarms": 0
+    }
+   ],
+   "summary": {
+    "clips": 8,
+    "mae_120s_before_boil": {
+     "vision": 32.6,
+     "nameplate": 34.5,
+     "n": 8
+    },
+    "mae_60s_before_boil": {
+     "vision": 18.1,
+     "nameplate": 34.5,
+     "n": 8
+    },
+    "mae_30s_before_boil": {
+     "vision": 7.9,
+     "nameplate": 34.5,
+     "n": 8
+    },
+    "boil_detected": "8/8",
+    "boil_detect_delay_s": {
+     "mean": 0.7,
+     "max_abs": 1.1
+    },
+    "foam_warned_in_time": "4/4",
+    "foam_mean_lead_s": 13.0,
+    "foam_false_alarms": 0,
+    "pot_center_err_px_max": 17.0
+   }
+  }
+ }
+}

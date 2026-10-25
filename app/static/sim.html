@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tempo · Kitchen twin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--enamel:#26343b;--rail:#1b262b;--floor:#2c3a40;--tile:#33434a;--steel:#9fb0b8;--heat:#f2a541;--boil:#e4572e;--cook:#2ec4b6;--ready:#8ac926;--warn:#ffd23f;
+--ink:#1d2326;--text:#f4f7f8;--muted:#b8c4ca;--sign:'Barlow Condensed',sans-serif;--read:'Atkinson Hyperlegible',sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--rail);color:var(--text);font-family:var(--read)}
+header{display:flex;align-items:center;gap:16px;padding:8px 16px;background:#141d21;border-bottom:1px solid #0006}
+header b{font:700 26px var(--sign);letter-spacing:.02em}
+header .tag{font-size:13px;color:var(--muted)}
+header .sp{flex:1}
+header .clock{font:700 30px var(--sign);font-variant-numeric:tabular-nums}
+header button,header select{font:600 15px var(--read);background:var(--enamel);color:var(--text);border:1px solid #fff2;border-radius:8px;padding:6px 10px;cursor:pointer}
+.sim-label{font-size:12px;background:#fff1;border-radius:6px;padding:3px 8px;color:var(--muted)}
+main{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px;padding:12px;height:calc(100vh - 56px)}
+.panel{background:var(--enamel);border-radius:14px;padding:10px 12px;min-height:0;position:relative;overflow:hidden}
+.panel h2{font:700 18px var(--sign);letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+#plan{width:100%;height:calc(100% - 26px)}
+.right{display:grid;grid-template-rows:1.05fr 1fr .9fr;gap:12px;min-height:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}
+.screen{background:#0b1114;border-radius:10px;border:3px solid #0a0f12;box-shadow:0 0 0 1px #fff1;overflow:hidden;position:relative;height:calc(100% - 26px)}
+.screen iframe{border:0;transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none}
+.log{list-style:none;margin:0;padding:0;font-size:13px;line-height:1.35;overflow:hidden;height:calc(100% - 26px)}
+.log li{padding:4px 0;border-bottom:1px solid #fff1}
+.log time{font:700 14px var(--sign);color:var(--muted);margin-right:6px}
+.log .cam{color:var(--cook)} .log .act{color:var(--warn)}
+/* svg text */
+svg text{font-family:var(--read);fill:var(--text)}
+.lbl{font:700 15px var(--sign);letter-spacing:.04em;fill:var(--muted)}
+.big{font:700 22px var(--sign)}
+.small{font-size:11px;fill:var(--muted)}
+.zone{fill:#22333b;stroke:#7fa3b1;stroke-width:2}
+.zone-lbl{font:500 22px var(--read);fill:#e6eef1;letter-spacing:.02em}
+.slot{fill:#33505b;stroke:#7fa3b1;stroke-width:1.5}
+.trail{fill:none;stroke:#3fdcb4;stroke-width:5;stroke-dasharray:14 10;stroke-linecap:round}
+.blink{animation:bl .8s steps(2,start) infinite}@keyframes bl{to{visibility:hidden}}
+.camtile video{width:100%;height:100%;object-fit:cover;background:#000;border-radius:6px;display:block}
+.camtile{position:absolute;border-radius:8px;overflow:hidden;background:#0b1114;border:2px solid #0a0f12}
+.camtile .cap{position:absolute;left:4px;bottom:3px;font-size:10px;background:#000a;padding:1px 5px;border-radius:4px}
+.camtile.off video{opacity:.25;filter:grayscale(1)}
+@media (prefers-reduced-motion: reduce){.blink{animation:none}.trail{stroke-dasharray:none}}
+</style></head><body>
+<header><b>Tempo</b><span class="tag">Kitchen twin — the simulated kitchen and every screen in it, on one service clock</span>
+<span class="sim-label">Simulated service · camera clips are simulated footage</span><span class="sp"></span>
+<select id="speed" aria-label="Speed"><option>5</option><option selected>10</option><option>20</option><option>30</option></select>
+<button id="restart">Restart service</button><span class="clock" id="clock">0:00</span></header>
+<main>
+  <section class="panel" aria-label="Kitchen floor plan"><h2>Kitchen (top view)</h2>
+    <div id="planwrap" style="position:relative;height:calc(100% - 26px)">
+      <svg id="plan" viewBox="0 0 1000 740" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Kitchen top view"></svg>
+      <div id="cams"></div>
+    </div>
+  </section>
+  <section class="right">
+    <div class="panel"><h2>Burner line screen</h2><div class="screen" id="s-line"><iframe src="/station/line?embed=1" title="Burner line" data-w="1280" data-h="560"></iframe></div></div>
+    <div class="row2">
+      <div class="panel"><h2>Prep board</h2><div class="screen" id="s-prep"><iframe src="/station/prep?embed=1" title="Prep" data-w="900" data-h="700"></iframe></div></div>
+      <div class="panel"><h2>Pass</h2><div class="screen" id="s-pass"><iframe src="/station/pass?embed=1" title="Pass" data-w="900" data-h="700"></iframe></div></div>
+    </div>
+    <div class="panel"><h2>Why the plan changed</h2><ul class="log" id="log"></ul></div>
+  </section>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const fmt = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
+const nice = d => (d||'').replace('_',' ');
+const COL = {empty:'#3a4a52', loading:'#f2a541', heating:'#f2a541', boiling:'#e4572e', cooking:'#2ec4b6', done:'#8ac926'};
+// ---------- floor plan (svg units, 1000 x 740) — flat shapes, one zone per station
+const VW = 1000, VH = 740;
+// one grid: every zone on the right shares the left edge 280 and the right edge 970
+const Z = {prep:[30,30,220,680], line:[280,30,690,308], table:[280,384,510,150], pass:[820,384,150,150], order:[280,580,690,130]};
+const BX = {B1:366, B2:539, B3:711, B4:884}, BY = 242, CAMY = 74;
+const RING = {top:361, left:265, bottom:557};   // walkway the cook moves along
+const SPOT = {prep:[RING.left, RING.top], B1:[366, RING.top], B2:[539, RING.top], B3:[711, RING.top], B4:[884, RING.top],
+              table:[535, 384], pass:[895, 384], idle:[RING.left, RING.bottom]};
+function route(a, b){
+  // orthogonal path: down the left aisle or straight to the top aisle, along it, then in
+  const A = SPOT[a], B = SPOT[b];
+  if (a === b) return [A];
+  const pts = [A, [A[0], RING.top], [B[0], RING.top], B];
+  return pts.filter((p, i) => i === 0 || p[0] !== pts[i - 1][0] || p[1] !== pts[i - 1][1]);
+}
+function staticPlan(){
+  const svg = $('#plan');
+  let h = `<defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="#18232a"/><path d="M40 0H0V40" fill="none" stroke="#24333b" stroke-width="1.5"/></pattern></defs>
+  <rect x="2" y="2" width="996" height="736" rx="18" fill="url(#grid)" stroke="#55717d" stroke-width="3"/>`;
+  const zone = (k, label, ly) => { const [x, y, w, hh] = Z[k];
+    return `<rect class="zone" x="${x}" y="${y}" width="${w}" height="${hh}" rx="12"/><text class="zone-lbl" x="${x + w / 2}" y="${y + ly}" text-anchor="middle">${label}</text>`; };
+  h += zone('prep', 'PREP', 44) + zone('line', 'BURNER LINE', 34) + zone('table', 'WORK TABLE', 34) + zone('pass', 'PASS / OUT', 34) + zone('order', 'ORDER / STORAGE', 30);
+  for (let i = 0; i < 5; i++) h += `<rect class="slot" x="52" y="${86 + i * 122}" width="176" height="100" rx="10"/>`;
+  h += `<g id="dyn"></g><path id="trail" class="trail" d=""/><circle id="target" r="13" fill="#3fdcb4"/>
+  <g id="cook"><circle r="19" fill="#3fdcb4" stroke="#fff" stroke-width="5"/></g><g id="say"></g>`;
+  svg.innerHTML = h;
+}
+staticPlan();
+// cook animation along the route
+let cookAt = 'idle', cookPos = SPOT.idle.slice(), anim = null;
+function moveCook(to){
+  if (to === cookAt) return;
+  const pts = route(cookAt, to); cookAt = to;
+  $('#trail').setAttribute('d', 'M' + pts.map(p => p.join(' ')).join(' L'));
+  const [tx, ty] = pts[pts.length - 1]; $('#target').setAttribute('cx', tx); $('#target').setAttribute('cy', ty);
+  const seg = []; let L = 0;
+  for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i-1][0], pts[i][1] - pts[i-1][1]); seg.push([pts[i-1], pts[i], L, d]); L += d; }
+  const t0 = performance.now(), dur = Math.min(1600, 300 + L * 2.2);
+  cancelAnimationFrame(anim);
+  const step = now => {
+    const u = Math.min(1, (now - t0) / dur), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2, at = e * L;
+    const s_ = seg.find(q => at <= q[2] + q[3]) || seg[seg.length - 1];
+    const k = s_[3] ? (at - s_[2]) / s_[3] : 1;
+    cookPos = [s_[0][0] + (s_[1][0] - s_[0][0]) * k, s_[0][1] + (s_[1][1] - s_[0][1]) * k];
+    $('#cook').setAttribute('transform', `translate(${cookPos[0]} ${cookPos[1]})`);
+    if (u < 1) anim = requestAnimationFrame(step);
+  };
+  anim = requestAnimationFrame(step);
+}
+$('#cook').setAttribute('transform', `translate(${SPOT.idle[0]} ${SPOT.idle[1]})`);
+// ---------- camera tiles positioned over the range (HTML so <video> can play)
+let CAMS = [], camEls = {};
+function placeCams(){
+  const svg = $('#plan'), r = svg.getBoundingClientRect(), wrap = $('#planwrap').getBoundingClientRect();
+  const s = Math.min(r.width / VW, r.height / VH), ox = (r.width - VW * s) / 2 + (r.left - wrap.left), oy = (r.height - VH * s) / 2 + (r.top - wrap.top);
+  for (const b of Object.keys(BX)) {
+    const el = camEls[b]; if (!el) continue;
+    const w = 136 * s, h = 76 * s;
+    Object.assign(el.style, {left: (ox + (BX[b] - 68) * s) + 'px', top: (oy + CAMY * s) + 'px', width: w + 'px', height: h + 'px'});
+  }
+}
+function setupCams(vs){
+  CAMS = vs || [];
+  $('#cams').innerHTML = Object.keys(BX).map(b => `<div class="camtile off" id="cam-${b}"><video muted playsinline preload="auto"></video><span class="cap">${b} camera</span></div>`).join('');
+  for (const b of Object.keys(BX)) camEls[b] = document.getElementById('cam-' + b);
+  for (const v of CAMS) {
+    const el = camEls[v.burner]; if (!el) continue;
+    const base = v.clip.replace(/\.mp4$/, '');
+    el.querySelector('video').innerHTML = `<source src="${base}.webm" type="video/webm"><source src="${base}.mp4" type="video/mp4">`;
+  }
+  placeCams();
+}
+addEventListener('resize', () => { placeCams(); fitScreens(); });
+// ---------- embedded station screens, scaled to fit
+function fitScreens(){
+  document.querySelectorAll('.screen').forEach(sc => {
+    const f = sc.querySelector('iframe'), W = +f.dataset.w, H = +f.dataset.h, r = sc.getBoundingClientRect();
+    const k = Math.min(r.width / W, r.height / H);
+    f.style.width = W + 'px'; f.style.height = H + 'px'; f.style.transform = `scale(${k})`;
+    f.style.left = ((r.width - W * k) / 2) + 'px'; f.style.top = ((r.height - H * k) / 2) + 'px';
+  });
+}
+fitScreens();
+// ---------- dynamic layer
+function ring(cx, cy, r, p, col){
+  const c = 2 * Math.PI * r;
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#0006" stroke-width="9"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round"
+     stroke-dasharray="${c * Math.max(0, Math.min(1, p))} ${c}" transform="rotate(-90 ${cx} ${cy})"/>`;
+}
+function leds(cx, cy, b){
+  const col = b.level === 'warn' ? '#ffd23f' : (COL[b.phase] || COL.empty);
+  const fill = b.phase === 'heating' || b.phase === 'cooking' ? (b.progress || 0) : 1;
+  let h = '';
+  for (let k = 0; k < 24; k++) {
+    const a = -Math.PI / 2 + k * 2 * Math.PI / 24, on = b.phase !== 'empty' && k / 24 < fill;
+    h += `<circle cx="${cx + 68 * Math.cos(a)}" cy="${cy + 68 * Math.sin(a)}" r="3.6" fill="${on ? col : '#3a4a52'}" ${b.blink && on ? 'class="blink"' : ''}/>`;
+  }
+  return h;
+}
+function render(d){
+  const F = d.frame, t = F.t;
+  $('#clock').textContent = fmt(t);
+  let h = '';
+  // burners: LED ring, pot, countdown
+  for (const b of F.burners) {
+    const cx = BX[b.name], cy = BY, col = b.level === 'warn' ? '#ffd23f' : (COL[b.phase] || COL.empty);
+    let L = '';
+    const fill = b.phase === 'heating' || b.phase === 'cooking' ? (b.progress || 0) : 1;
+    for (let k = 0; k < 24; k++) { const a = -Math.PI / 2 + k * Math.PI / 12, on = b.phase !== 'empty' && k / 24 < fill;
+      L += `<circle cx="${cx + 60 * Math.cos(a)}" cy="${cy + 60 * Math.sin(a)}" r="4" fill="${on ? col : '#2c3d45'}" ${b.blink && on ? 'class="blink"' : ''}/>`; }
+    h += L + `<circle cx="${cx}" cy="${cy}" r="49" fill="#152027" stroke="#b9cbd3" stroke-width="6"/>`;
+    if (b.phase === 'empty') h += `<circle cx="${cx}" cy="${cy}" r="22" fill="none" stroke="#5d7a86" stroke-width="3"/>`;
+    else {
+      const c = 2 * Math.PI * 38, p = Math.max(0, Math.min(1, b.progress || 0));
+      h += `<circle cx="${cx}" cy="${cy}" r="38" fill="none" stroke="#ffffff14" stroke-width="7"/><circle cx="${cx}" cy="${cy}" r="38" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${c * p} ${c}" transform="rotate(-90 ${cx} ${cy})"/>`;
+      const big = b.phase === 'heating' && b.eta_s != null ? fmt(b.eta_s) : ({boiling: 'BOIL', cooking: Math.round(p * 100) + '%', done: 'DONE', loading: 'LOAD'}[b.phase] || '');
+      h += `<text x="${cx}" y="${cy + 8}" text-anchor="middle" style="font:700 24px var(--sign);fill:${col}">${big}</text>`;
+    }
+    h += `<text x="${cx - 62}" y="${cy + 76}" style="font:700 17px var(--sign);fill:#e6eef1">${b.name}</text>`;
+    h += `<text x="${cx + 62}" y="${cy + 76}" text-anchor="end" class="small">${b.item ? b.item.ticket + ' ' + nice(b.item.dish) : (b.next ? 'next ' + b.next.ticket : 'free')}</text>`;
+    if (b.blink) h += `<rect x="${cx - 70}" y="${cy - 12 - 52}" width="140" height="22" rx="11" fill="${col}" class="blink"/><text x="${cx}" y="${cy - 48}" text-anchor="middle" class="blink" style="font:700 14px var(--sign);fill:#1d2326">${(b.prompt || '').split('·')[0].trim().slice(0, 22)}</text>`;
+  }
+  // prep slots: now + next
+  const slots = [];
+  if (F.prep_now) slots.push({...F.prep_now, now: true});
+  for (const n of F.prep_next) slots.push(n);
+  slots.slice(0, 5).forEach((s_, i) => {
+    const y = 86 + i * 122;
+    h += `<rect x="52" y="${y}" width="176" height="100" rx="10" fill="${s_.now ? '#2ec4b6' : '#33505b'}" opacity="${s_.now ? .9 : 1}"/>`;
+    h += `<text x="64" y="${y + 30}" style="font:700 20px var(--sign);fill:${s_.now ? '#10201f' : '#e6eef1'}">${s_.ticket} ${nice(s_.dish)}</text>`;
+    const note = (s_.note || '').split(',')[0].slice(0, 26);
+    h += `<text x="64" y="${y + 54}" style="font-size:12px;fill:${s_.now ? '#10201f' : '#b8c4ca'}">${note}</text>`;
+    h += `<text x="64" y="${y + 82}" style="font:700 15px var(--sign);fill:${s_.now ? '#10201f' : '#b8c4ca'}">${s_.now ? 'CUTTING · ' + fmt(s_.left_s) + ' left' : (s_.in_s > 5 ? 'in ' + fmt(s_.in_s) : 'next')}</text>`;
+    if (s_.now) h += `<rect x="64" y="${y + 88}" width="${147 * (s_.progress || 0)}" height="5" rx="2" fill="#10201f"/>`;
+  });
+  // work table: dishes plated and waiting for the rest of their ticket
+  const waiting = [];
+  for (const p of F.pass) if (!p.served) for (const it of p.items) if (it.state === 'plated' || it.state === 'ready') waiting.push({ticket: p.ticket, dish: it.dish, state: it.state});
+  waiting.slice(0, 6).forEach((w, i) => {
+    const x = 400 + (i % 3) * 135, y = 452 + Math.floor(i / 3) * 0;
+    const xx = 305 + (i % 3) * 165, yy = 440 + Math.floor(i / 3) * 46;
+    h += `<circle cx="${xx + 14}" cy="${yy + 14}" r="14" fill="${w.state === 'plated' ? '#f4f7f8' : '#8ac926'}" stroke="#1d2326" stroke-width="2"/><text x="${xx + 34}" y="${yy + 19}" style="font-size:13px">${w.ticket} ${nice(w.dish)}</text>`;
+  });
+  if (!waiting.length) h += `<text x="535" y="470" text-anchor="middle" class="small">plated dishes wait here for the rest of their ticket</text>`;
+  // pass: tickets with plate pips
+  const open = F.pass.filter(p => !p.served).slice(0, 3);
+  open.forEach((p, i) => {
+    const y = 448 + i * 34;
+    h += `<text x="836" y="${y + 6}" style="font:700 18px var(--sign)">${p.ticket}</text>`;
+    for (let k = 0; k < p.n; k++) h += `<circle cx="${878 + k * 26}" cy="${y}" r="10" fill="${k < p.plated ? '#8ac926' : 'none'}" stroke="#e6eef1" stroke-width="2"/>`;
+  });
+  const served = F.pass.filter(p => p.served);
+  if (served.length) h += `<text x="950" y="665" text-anchor="end" style="font:700 15px var(--sign);fill:#8ac926">${served.map(p => p.ticket).join(' ')} OUT together</text>`;
+  // order / storage: open tickets
+  const tickets = F.pass.filter(p => !p.served);
+  tickets.slice(0, 5).forEach((p, i) => {
+    const x = 300 + i * 82;
+    h += `<rect x="${x}" y="632" width="72" height="42" rx="8" fill="#f4f1e8"/><text x="${x + 36}" y="652" text-anchor="middle" style="font:700 16px var(--sign);fill:#1d2326">${p.ticket}</text><text x="${x + 36}" y="668" text-anchor="middle" style="font-size:11px;fill:#1d2326">${fmt(p.age_s)}</text>`;
+  });
+  $('#dyn').innerHTML = h;
+  // cook
+  let spot = 'idle', say = 'Free';
+  if (F.cook) {
+    const b = F.burners.find(x => x.item && x.item.ticket === F.cook.ticket && x.item.dish === F.cook.dish);
+    if (F.cook.action === 'prep') { spot = 'prep'; say = `Cutting ${F.cook.ticket} ${nice(F.cook.dish)}`; }
+    else if (F.cook.action === 'plate') { spot = 'table'; say = `Plating ${F.cook.ticket} ${nice(F.cook.dish)}`; }
+    else { spot = b ? b.name : 'idle'; say = ({load: 'Pot on', add: 'Adding'}[F.cook.action] || F.cook.action) + ` · ${F.cook.ticket} ${nice(F.cook.dish)}`; }
+  }
+  moveCook(spot);
+  const [x, y] = SPOT[spot];
+  const right = x < 760, bx = right ? x + 28 : x - 228, by = y - 13;
+  $('#say').innerHTML = `<rect x="${bx}" y="${by}" width="200" height="26" rx="13" fill="#0b1114" stroke="#3fdcb4" stroke-width="1.5"/><text x="${bx + 100}" y="${by + 18}" text-anchor="middle" style="font-size:13px">${say}</text>`;
+  // cameras
+  for (const v of CAMS) {
+    const el = camEls[v.burner]; if (!el) continue;
+    const vid = el.querySelector('video'), ct = t - v.t_load, live = ct >= 0 && ct <= (vid.duration || 1e9);
+    el.classList.toggle('off', !live);
+    el.querySelector('.cap').textContent = live ? `${v.burner} · ${nice(v.dish)} · ${fmt(ct)}` : `${v.burner} camera`;
+    if (live) {
+      if (Math.abs(vid.currentTime - ct) > 1.5) vid.currentTime = ct;
+      vid.playbackRate = Math.min(16, d.speed);
+      if (vid.paused) vid.play().catch(() => {});
+    } else vid.pause();
+  }
+  // log
+  $('#log').innerHTML = [...d.events].reverse().slice(0, 9).map(e => {
+    if (e.kind === 'order') return `<li><time>${fmt(e.t)}</time>New ticket ${e.ticket}: ${e.items.map(nice).join(', ')}</li>`;
+    if (e.kind === 'served') return `<li><time>${fmt(e.t)}</time>${e.ticket} went out together</li>`;
+    if (e.kind === 'stage') return `<li class="cam"><time>${fmt(e.t)}</time>Camera ${e.burner}: ${nice(e.dish)} ${['','shimmer','simmer','rolling boil'][e.stage]}${e.stage < 3 ? ' · boil at ' + fmt(e.eta) : ''}</li>`;
+    if (e.kind === 'auto_heat_down') return `<li class="act"><time>${fmt(e.t)}</time>Foam on ${e.burner}: heat lowered before it boiled over</li>`;
+    return `<li><time>${fmt(e.t)}</time>Plan updated (${e.reason.split(':')[1].split(',')[0].trim().replace(/_/g,' ')}): moved ${e.changes.length} step${e.changes.length > 1 ? 's' : ''}</li>`;
+  }).join('');
+}
+async function tick(){
+  try {
+    const d = await (await fetch('/api/live/frame')).json();
+    if (!CAMS.length && d.videos) setupCams(d.videos);
+    if (![...$('#speed').options].some(o => o.value === String(d.speed))) $('#speed').add(new Option(String(d.speed)));
+    $('#speed').value = String(d.speed);
+    render(d);
+  } catch (e) {}
+}
+async function restart(){
+  await fetch(`/api/live/start?speed=${$('#speed').value}`, {method: 'POST'});
+  document.querySelectorAll('#cams video').forEach(v => { v.currentTime = 0; });
+  tick();
+}
+$('#restart').onclick = restart;
+$('#speed').onchange = async () => {
+  const d = await (await fetch('/api/live/frame')).json();
+  await fetch(`/api/live/start?speed=${$('#speed').value}&at=${d.frame.t}`, {method: 'POST'});
+};
+if (new URLSearchParams(location.search).get('restart')) restart();
+tick(); setInterval(tick, 500);
+</script>
+</body></html>

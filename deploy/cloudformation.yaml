@@ -1,0 +1,140 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Tempo - OpenCV 5 vision agent on AWS Graviton (EC2 t4g) with S3, SNS and CloudWatch Logs.
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t4g.small
+    AllowedValues: [t4g.small, t4g.medium, c7g.large]
+  AlertEmail:
+    Type: String
+    Default: ""
+    Description: Optional e-mail to receive safety alerts (confirm the SNS mail).
+  CodeBucket:
+    Type: String
+    Description: Bucket holding the application archive (created by deploy.sh).
+  CodeKey:
+    Type: String
+    Default: code/tempo.zip
+  AmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64
+
+Conditions:
+  HasEmail: !Not [!Equals [!Ref AlertEmail, ""]]
+
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-results
+            Status: Enabled
+            ExpirationInDays: 30
+
+  Topic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: tempo-safety-alerts
+
+  TopicSub:
+    Type: AWS::SNS::Subscription
+    Condition: HasEmail
+    Properties:
+      TopicArn: !Ref Topic
+      Protocol: email
+      Endpoint: !Ref AlertEmail
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /tempo/app
+      RetentionInDays: 14
+
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: ec2.amazonaws.com}
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Policies:
+        - PolicyName: tempo-least-privilege
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [s3:GetObject, s3:PutObject]
+                Resource: !Sub "${Bucket.Arn}/*"
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource: !Sub "arn:aws:s3:::${CodeBucket}/${CodeKey}"
+              - Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref Topic
+              - Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents, logs:DescribeLogStreams]
+                Resource: !GetAtt LogGroup.Arn
+
+  Profile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [!Ref Role]
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Tempo HTTP only (admin access via SSM, no SSH)
+      SecurityGroupIngress:
+        - {IpProtocol: tcp, FromPort: 80, ToPort: 80, CidrIp: 0.0.0.0/0}
+
+  Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref Profile
+      SecurityGroupIds: [!GetAtt SecurityGroup.GroupId]
+      MetadataOptions: {HttpTokens: required}
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs: {VolumeSize: 16, VolumeType: gp3, Encrypted: true}
+      Tags: [{Key: Name, Value: tempo}]
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -euxo pipefail
+          dnf install -y docker unzip
+          systemctl enable --now docker
+          mkdir -p /opt/tempo && cd /opt/tempo
+          aws s3 cp s3://${CodeBucket}/${CodeKey} code.zip --region ${AWS::Region}
+          unzip -o code.zip
+          docker build -t tempo .
+          docker run -d --restart unless-stopped --name tempo -p 80:8000 \
+            -e AWS_REGION=${AWS::Region} \
+            -e TEMPO_S3_BUCKET=${Bucket} \
+            -e TEMPO_SNS_TOPIC_ARN=${Topic} \
+            --log-driver awslogs --log-opt awslogs-region=${AWS::Region} \
+            --log-opt awslogs-group=/tempo/app --log-opt awslogs-create-group=false \
+            tempo
+
+Outputs:
+  Endpoint:
+    Value: !Sub "http://${Instance.PublicDnsName}/"
+  BucketName:
+    Value: !Ref Bucket
+  TopicArn:
+    Value: !Ref Topic

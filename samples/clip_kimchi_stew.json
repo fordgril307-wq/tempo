@@ -1,0 +1,15 @@
+{
+ "burner": "auto",
+ "dish": "kimchi_stew",
+ "clip": "/clips/clip_kimchi_stew.mp4",
+ "boil_s": 503.05,
+ "boil_detect_s": 504.0,
+ "stages": {
+  "1": 432.0,
+  "2": 504.0
+ },
+ "add_s": 509,
+ "foam_warn_s": null,
+ "heat_down_s": null,
+ "source": "simulated footage (photo-realistic renderer), labelled in frame"
+}

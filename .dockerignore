@@ -1,0 +1,8 @@
+data
+out
+work
+docs
+hardware
+tests
+**/__pycache__
+.git

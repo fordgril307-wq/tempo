@@ -1,0 +1,15 @@
+{
+ "burner": "auto",
+ "dish": "pasta",
+ "clip": "/clips/clip_pasta.mp4",
+ "boil_s": 327.54,
+ "boil_detect_s": 328.0,
+ "stages": {
+  "1": 210.0,
+  "2": 258.0
+ },
+ "add_s": 334,
+ "foam_warn_s": 330.0,
+ "heat_down_s": 375,
+ "source": "simulated footage (photo-realistic renderer), labelled in frame"
+}

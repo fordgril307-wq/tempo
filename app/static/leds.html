@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tempo LED rings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--steel:#2b3236;--plate:#3a4247;--text:#eef2f3;--muted:#a9b6bc;--sign:"Barlow Condensed",system-ui,sans-serif;--read:"Atkinson Hyperlegible",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:#191d20;color:var(--text);font:16px/1.45 var(--read)}
+header{display:flex;align-items:baseline;gap:14px;padding:14px 20px;flex-wrap:wrap}
+h1{margin:0;font:700 30px/1 var(--sign)}
+header p{margin:0;color:var(--muted);max-width:70ch}
+.clock{margin-left:auto;font:700 28px var(--sign);font-variant-numeric:tabular-nums}
+.stove{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;max-width:980px;margin:6px auto 0;padding:24px;
+  background:linear-gradient(#2e353a,#23292d);border-radius:18px;box-shadow:inset 0 0 0 2px #444c52}
+.burner{position:relative;aspect-ratio:1;border-radius:14px;background:var(--plate);display:grid;place-items:center}
+.burner svg{width:86%;height:86%}
+.cap{position:absolute;left:14px;top:10px;font:700 22px var(--sign);color:var(--muted)}
+.lab{position:absolute;left:0;right:0;bottom:12px;text-align:center;font:600 18px var(--read);color:var(--text)}
+.legend{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;margin:18px auto 26px;color:var(--muted);font-size:15px;max-width:980px;padding:0 16px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:6px;vertical-align:-2px}
+@media (max-width:620px){.stove{grid-template-columns:1fr;padding:14px}}
+</style>
+</head>
+<body>
+<header><h1>LED rings</h1><p>Simulation of the 24-LED ring behind each burner, driven by the same feed the ESP32 firmware reads (<code>/api/live/B1?format=led</code>).</p><span class="clock" id="clock"></span></header>
+<div class="stove" id="stove"></div>
+<div class="legend">
+  <span><i style="background:#f2a541"></i>Amber filling: heating, ring fills toward the boil</span>
+  <span><i style="background:#e4572e"></i>Red: boiling, blinks when it is time to add</span>
+  <span><i style="background:#2ec4b6"></i>Teal filling: cooking timer</span>
+  <span><i style="background:#8ac926"></i>Green blink: plate now</span>
+  <span><i style="background:#ffd23f"></i>Yellow blink: foam, heat lowered</span>
+</div>
+<script>
+const N = 24, names = ['B1','B2','B3','B4'];
+const $ = s => document.querySelector(s);
+const fmt = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
+$('#stove').innerHTML = names.map(n => `<div class="burner"><span class="cap">${n}</span>
+  <svg viewBox="0 0 200 200" aria-label="${n} LED ring"><circle cx="100" cy="100" r="54" fill="#22282c" stroke="#555e64" stroke-width="6"/>
+  <circle cx="100" cy="100" r="30" fill="none" stroke="#4a5257" stroke-width="4"/>
+  ${[...Array(N)].map((_,k) => { const a = (k / N) * 2 * Math.PI - Math.PI / 2;
+     return `<circle id="${n}-${k}" cx="${100 + 82*Math.cos(a)}" cy="${100 + 82*Math.sin(a)}" r="7" fill="#2a2f33"/>`; }).join('')}
+  </svg><span class="lab" id="${n}-lab"></span></div>`).join('');
+const state = {};
+async function poll(){
+  try {
+    const d = await (await fetch('/api/live/frame')).json();
+    $('#clock').textContent = fmt(d.frame.t);
+    await Promise.all(names.map(async n => {
+      state[n] = await (await fetch(`/api/live/${n}?format=led`)).json();
+      const c = d.frame.burners.find(b => b.name === n);
+      $(`#${n}-lab`).textContent = c.item ? `${c.item.ticket} ${c.item.dish.replace('_',' ')}` : 'off';
+    }));
+  } catch (e) {}
+}
+function paint(){
+  const on = Math.floor(performance.now() / 500) % 2 === 0;
+  for (const n of names){
+    const s = state[n]; if (!s) continue;
+    const lit = s.pattern === 'fill' ? Math.max(1, Math.round(s.fill * N)) : N;
+    const show = s.pattern !== 'blink' || on;
+    const col = `rgb(${s.rgb.join(',')})`, idle = s.rgb.join(',') === '40,50,55';
+    for (let k = 0; k < N; k++){
+      const el = document.getElementById(`${n}-${k}`);
+      const glow = show && k < lit && !idle;
+      el.setAttribute('fill', glow ? col : '#2a2f33');
+      el.style.filter = glow ? `drop-shadow(0 0 6px ${col})` : 'none';
+    }
+  }
+  requestAnimationFrame(paint);
+}
+poll(); setInterval(poll, 1000); requestAnimationFrame(paint);
+</script>
+</body>
+</html>

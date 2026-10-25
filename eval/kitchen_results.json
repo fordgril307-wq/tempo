@@ -1,0 +1,175 @@
+{
+ "n_services": 120,
+ "conditions": {
+  "calm": {
+   "fifo": {
+    "food_wait_mean_s": 277.9,
+    "food_wait_p90_s": 606.0,
+    "lead_mean_s": 937.9,
+    "lead_p90_s": 1179.8,
+    "idle_boil_mean_s": 19.1,
+    "boilovers": 0.1,
+    "overcook_mean_s": 4.8,
+    "dishes": 10.1,
+    "boilovers_per_100_dishes": 1.16,
+    "food_wait_vs_fifo_pct": 0.0,
+    "lead_vs_fifo_pct": 0.0
+   },
+   "plan_fixed": {
+    "food_wait_mean_s": 105.9,
+    "food_wait_p90_s": 195.4,
+    "lead_mean_s": 911.9,
+    "lead_p90_s": 1131.4,
+    "idle_boil_mean_s": 23.5,
+    "boilovers": 0.2,
+    "overcook_mean_s": 9.5,
+    "dishes": 10.1,
+    "boilovers_per_100_dishes": 2.4,
+    "food_wait_vs_fifo_pct": -61.9,
+    "lead_vs_fifo_pct": -2.8
+   },
+   "plan_alert": {
+    "food_wait_mean_s": 95.6,
+    "food_wait_p90_s": 159.5,
+    "lead_mean_s": 922.0,
+    "lead_p90_s": 1154.1,
+    "idle_boil_mean_s": 36.3,
+    "boilovers": 0.1,
+    "overcook_mean_s": 16.5,
+    "dishes": 10.1,
+    "boilovers_per_100_dishes": 1.41,
+    "food_wait_vs_fifo_pct": -65.6,
+    "lead_vs_fifo_pct": -1.7
+   },
+   "tempo": {
+    "food_wait_mean_s": 93.7,
+    "food_wait_p90_s": 152.8,
+    "lead_mean_s": 939.8,
+    "lead_p90_s": 1185.0,
+    "idle_boil_mean_s": 43.9,
+    "boilovers": 0.0,
+    "overcook_mean_s": 17.8,
+    "dishes": 10.1,
+    "boilovers_per_100_dishes": 0.0,
+    "food_wait_vs_fifo_pct": -66.3,
+    "lead_vs_fifo_pct": 0.2
+   },
+   "tempo_minus_fixed_food_wait_s_95ci": [
+    -16.9,
+    -8.0
+   ]
+  },
+  "rush": {
+   "fifo": {
+    "food_wait_mean_s": 318.0,
+    "food_wait_p90_s": 778.9,
+    "lead_mean_s": 1936.0,
+    "lead_p90_s": 2735.9,
+    "idle_boil_mean_s": 37.6,
+    "boilovers": 2.2,
+    "overcook_mean_s": 19.9,
+    "dishes": 30.0,
+    "boilovers_per_100_dishes": 7.5,
+    "food_wait_vs_fifo_pct": 0.0,
+    "lead_vs_fifo_pct": 0.0
+   },
+   "plan_fixed": {
+    "food_wait_mean_s": 215.5,
+    "food_wait_p90_s": 504.0,
+    "lead_mean_s": 2087.0,
+    "lead_p90_s": 2968.7,
+    "idle_boil_mean_s": 39.9,
+    "boilovers": 2.2,
+    "overcook_mean_s": 21.1,
+    "dishes": 30.0,
+    "boilovers_per_100_dishes": 7.22,
+    "food_wait_vs_fifo_pct": -32.2,
+    "lead_vs_fifo_pct": 7.8
+   },
+   "plan_alert": {
+    "food_wait_mean_s": 196.8,
+    "food_wait_p90_s": 457.8,
+    "lead_mean_s": 2117.8,
+    "lead_p90_s": 3038.1,
+    "idle_boil_mean_s": 35.8,
+    "boilovers": 1.6,
+    "overcook_mean_s": 22.8,
+    "dishes": 30.0,
+    "boilovers_per_100_dishes": 5.16,
+    "food_wait_vs_fifo_pct": -38.1,
+    "lead_vs_fifo_pct": 9.4
+   },
+   "tempo": {
+    "food_wait_mean_s": 196.4,
+    "food_wait_p90_s": 452.8,
+    "lead_mean_s": 2199.8,
+    "lead_p90_s": 3176.3,
+    "idle_boil_mean_s": 33.2,
+    "boilovers": 0.1,
+    "overcook_mean_s": 26.5,
+    "dishes": 30.0,
+    "boilovers_per_100_dishes": 0.19,
+    "food_wait_vs_fifo_pct": -38.2,
+    "lead_vs_fifo_pct": 13.6
+   },
+   "tempo_minus_fixed_food_wait_s_95ci": [
+    -25.5,
+    -13.3
+   ]
+  }
+ },
+ "summary": {
+  "calm": {
+   "fifo": {
+    "food_wait_mean_s": 277.9,
+    "food_wait_p90_s": 606.0,
+    "lead_mean_s": 937.9,
+    "boilovers_per_100_dishes": 1.16
+   },
+   "plan_fixed": {
+    "food_wait_mean_s": 105.9,
+    "food_wait_p90_s": 195.4,
+    "lead_mean_s": 911.9,
+    "boilovers_per_100_dishes": 2.4
+   },
+   "plan_alert": {
+    "food_wait_mean_s": 95.6,
+    "food_wait_p90_s": 159.5,
+    "lead_mean_s": 922.0,
+    "boilovers_per_100_dishes": 1.41
+   },
+   "tempo": {
+    "food_wait_mean_s": 93.7,
+    "food_wait_p90_s": 152.8,
+    "lead_mean_s": 939.8,
+    "boilovers_per_100_dishes": 0.0
+   }
+  },
+  "rush": {
+   "fifo": {
+    "food_wait_mean_s": 318.0,
+    "food_wait_p90_s": 778.9,
+    "lead_mean_s": 1936.0,
+    "boilovers_per_100_dishes": 7.5
+   },
+   "plan_fixed": {
+    "food_wait_mean_s": 215.5,
+    "food_wait_p90_s": 504.0,
+    "lead_mean_s": 2087.0,
+    "boilovers_per_100_dishes": 7.22
+   },
+   "plan_alert": {
+    "food_wait_mean_s": 196.8,
+    "food_wait_p90_s": 457.8,
+    "lead_mean_s": 2117.8,
+    "boilovers_per_100_dishes": 5.16
+   },
+   "tempo": {
+    "food_wait_mean_s": 196.4,
+    "food_wait_p90_s": 452.8,
+    "lead_mean_s": 2199.8,
+    "boilovers_per_100_dishes": 0.19
+   }
+  }
+ }
+}

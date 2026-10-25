@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#26343b">
+<title>Tempo station</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--enamel:#26343b;--heat:#f2a541;--boil:#e4572e;--cook:#2ec4b6;--ready:#8ac926;--warn:#ffd23f;--paper:#f2efe6;--ink:#1d2326;--text:#f4f7f8;--muted:#c3cdd2;
+  --sign:"Barlow Condensed",system-ui,sans-serif;--read:"Atkinson Hyperlegible",system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--enamel);color:var(--text);font-family:var(--read);overflow:hidden}
+#fill{position:fixed;left:0;right:0;bottom:0;height:0;transition:height .9s linear,background .3s}
+.wrap{position:relative;height:100%;display:flex;flex-direction:column;padding:max(16px,env(safe-area-inset-top)) 20px 20px}
+.top{display:flex;justify-content:space-between;align-items:baseline;font:700 clamp(22px,4vw,40px)/1 var(--sign);opacity:.85}
+.who{font:700 clamp(40px,9vw,120px)/1 var(--sign);margin-top:2vh}
+.say{font:700 clamp(36px,8vw,110px)/1.02 var(--sign);margin-top:auto}
+.sub{font-size:clamp(18px,3.2vw,34px);margin-top:1.5vh;color:var(--muted)}
+.big{font:700 clamp(80px,22vw,300px)/.9 var(--sign);font-variant-numeric:tabular-nums}
+.flash{animation:flash 1s steps(2,start) infinite}
+@keyframes flash{50%{filter:brightness(1.6) saturate(.6)}}
+@media (prefers-reduced-motion:reduce){.flash{animation:none;outline:14px solid #fff;outline-offset:-14px}}
+/* prep */
+.cut{background:var(--paper);color:var(--ink);border-radius:8px;padding:2.4vh 2.4vw;margin-top:2vh}
+.cut b{display:block;font:700 clamp(34px,6.5vw,80px)/1 var(--sign)}
+.cut span{display:block;font-size:clamp(22px,3.8vw,46px);line-height:1.25;margin-top:1vh}
+.queue{list-style:none;padding:0;margin:2vh 0 0;font-size:clamp(18px,2.8vw,30px)}
+.queue li{display:flex;justify-content:space-between;gap:16px;padding:1vh 0;border-top:2px solid #ffffff22}
+.queue em{font:600 1.15em var(--sign);font-style:normal;color:var(--muted);white-space:nowrap}
+/* pass */
+.tix{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2vh 2vw;margin-top:2vh}
+.tk{background:#ffffff14;border-radius:10px;padding:2vh 1.6vw}
+.tk.up{background:var(--ready);color:var(--ink)}
+.tk b{font:700 clamp(36px,6vw,72px)/1 var(--sign)}
+.tk .pips{display:flex;gap:8px;margin:1.2vh 0}
+.tk .pips i{flex:1;height:22px;border-radius:5px;background:#00000040}
+.tk .pips i.on{background:var(--ready)}
+.tk.up .pips i.on{background:var(--ink)}
+.tk div{font-size:clamp(16px,2.4vw,24px)}
+#gate{position:fixed;inset:0;background:var(--enamel);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:20px;z-index:5}
+#gate button{font:700 32px var(--sign);padding:18px 40px;border-radius:12px;border:0;background:var(--cook);color:var(--ink);cursor:pointer}
+#gate button:focus-visible{outline:4px solid var(--warn);outline-offset:4px}
+#gate p{max-width:46ch;color:var(--muted);font-size:18px}
+.off{color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="fill"></div>
+<div class="wrap" id="view" aria-live="polite"></div>
+<div id="gate"><div class="who" id="gname"></div>
+  <p>Mount this screen at the station. Tapping start keeps the screen awake and turns on the chime for new actions.</p>
+  <button id="go">Start station</button></div>
+<script>
+const st = location.pathname.split('/').pop();
+const $ = s => document.querySelector(s);
+const fmt = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
+const nice = d => (d||'').replace('_',' ');
+const names = {prep:'Prep board', pass:'Pass', B1:'Burner 1', B2:'Burner 2', B3:'Burner 3', B4:'Burner 4'};
+$('#gname').textContent = names[st] || st;
+document.title = `Tempo · ${names[st] || st}`;
+let audio = null, lastCue = '';
+$('#go').onclick = async () => {
+  try { audio = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+  try { await navigator.wakeLock?.request('screen'); } catch (e) {}
+  $('#gate').remove(); tick(); setInterval(tick, 1000);
+};
+if (new URLSearchParams(location.search).get('embed')) { $('#gate').remove(); tick(); setInterval(tick, 1000); }
+function chime(){
+  if (!audio) return;
+  const o = audio.createOscillator(), g = audio.createGain();
+  o.frequency.value = 880; g.gain.setValueAtTime(.25, audio.currentTime); g.gain.exponentialRampToValueAtTime(.001, audio.currentTime + .6);
+  o.connect(g).connect(audio.destination); o.start(); o.stop(audio.currentTime + .6);
+  navigator.vibrate?.(200);
+}
+async function tick(){
+  let d; try { d = await (await fetch(`/api/live/${st}`)).json(); } catch (e) { $('#view').innerHTML = '<div class="say off">Reconnecting…</div>'; return; }
+  const V = $('#view'), F = $('#fill');
+  let cue = '';
+  if (st.startsWith('B')){
+    const c = d.card, col = {heating:'var(--heat)',boiling:'var(--boil)',cooking:'var(--cook)',done:'var(--ready)',loading:'var(--heat)'}[c.phase];
+    const flash = c.blink;
+    document.body.style.background = c.phase === 'boiling' || c.phase === 'done' ? col : 'var(--enamel)';
+    F.style.background = col || 'transparent';
+    F.style.height = (c.phase === 'heating' || c.phase === 'cooking') ? `${Math.round((c.progress||0)*100)}%` : '0';
+    if (c.level === 'warn') document.body.style.background = 'var(--warn)';
+    const who = c.item ? `${c.item.ticket} · ${nice(c.item.dish)}` : 'Free';
+    let big = '', say = c.prompt || 'Nothing planned';
+    if (c.phase === 'heating'){ big = fmt(c.eta_s); say = 'to boil'; }
+    if (c.phase === 'cooking'){ big = Math.round(c.progress*100) + '%'; }
+    if (c.phase === 'boiling' || c.phase === 'done' || c.level === 'warn'){ say = c.prompt.split(' · ')[0]; }
+    const dark = ['boiling','done'].includes(c.phase) || c.level === 'warn';
+    V.className = 'wrap' + (flash ? ' flash' : '');
+    V.style.color = dark ? 'var(--ink)' : 'var(--text)';
+    V.innerHTML = `<div class="top"><span>${names[st]}</span><span>${fmt(d.t)}</span></div>
+      <div class="who">${who}</div>${big ? `<div class="big">${big}</div>` : ''}
+      <div class="say">${say}</div><div class="sub" style="color:inherit;opacity:.8">${c.prompt && !c.prompt.startsWith(say) ? c.prompt : ''}</div>`;
+    cue = flash ? c.prompt : '';
+  } else if (st === 'prep'){
+    const n = d.now;
+    document.body.style.background = 'var(--enamel)'; F.style.height = n ? `${Math.round(n.progress*100)}%` : '0'; F.style.background = '#f2a54133';
+    V.className = 'wrap'; V.style.color = '';
+    V.innerHTML = `<div class="top"><span>Prep board</span><span>${fmt(d.t)}</span></div>` +
+      (n ? `<div class="cut"><b>${n.ticket} · ${nice(n.dish)}</b><span>${n.note}</span></div>` : '<div class="say off">Nothing to cut right now</div>') +
+      (d.next.length ? `<ul class="queue">${d.next.map(x => `<li><span><b>${x.ticket}</b> ${nice(x.dish)}: ${x.note}</span><em>${x.in_s > 5 ? 'in ' + fmt(x.in_s) : 'now'}</em></li>`).join('')}</ul>` : '');
+    cue = n ? n.ticket + n.dish : '';
+  } else {
+    const open = d.pass.filter(p => !p.served || p.plated === p.n);
+    document.body.style.background = 'var(--enamel)'; F.style.height = '0'; V.style.color = '';
+    const up = open.filter(p => p.served);
+    V.className = 'wrap';
+    V.innerHTML = `<div class="top"><span>Pass</span><span>${fmt(d.t)}</span></div>` +
+      (up.length ? `<div class="say flash" style="margin-top:2vh">Order up: ${up.map(p => p.ticket).join(', ')}</div>` : '') +
+      `<div class="tix">${open.map(p => `<div class="tk ${p.served ? 'up' : ''}"><b>${p.ticket}</b>
+        <div class="pips">${[...Array(p.n)].map((_,k) => `<i class="${k < p.plated ? 'on' : ''}"></i>`).join('')}</div>
+        <div>${p.items.map(i => nice(i.dish)).join(', ')}</div>
+        <div>${p.served ? 'All plated' : p.target_in != null ? 'All ready in ' + fmt(p.target_in) : ''}</div></div>`).join('')}</div>`;
+    cue = up.map(p => p.ticket).join();
+  }
+  if (cue && cue !== lastCue) chime();
+  lastCue = cue;
+}
+</script>
+</body>
+</html>

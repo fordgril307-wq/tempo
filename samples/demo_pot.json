@@ -1,0 +1,15 @@
+{
+ "burner": "auto",
+ "dish": "ramen",
+ "clip": "/clips/demo_pot.mp4",
+ "boil_s": 233.79,
+ "boil_detect_s": 234.0,
+ "stages": {
+  "1": 158.0,
+  "2": 207.0
+ },
+ "add_s": 238,
+ "foam_warn_s": 287.0,
+ "heat_down_s": 289,
+ "source": "simulated footage (photo-realistic renderer), labelled in frame"
+}

@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tempo kitchen board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --enamel:#26343b; --enamel-2:#2f3f47; --steel:#6b7b83; --steel-hi:#9fb0b8; --paper:#f2efe6; --ink:#1d2326;
+  --heat:#f2a541; --boil:#e4572e; --cook:#2ec4b6; --ready:#8ac926; --warn:#ffd23f; --text:#e8eef0; --muted:#a9b6bc;
+  --sign:"Barlow Condensed",system-ui,sans-serif; --read:"Atkinson Hyperlegible",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--enamel);color:var(--text);font:16px/1.45 var(--read)}
+header{display:flex;align-items:center;gap:16px;padding:10px 20px;background:var(--enamel-2);border-bottom:2px solid #1b262b;flex-wrap:wrap}
+.brand{font:700 30px/1 var(--sign);letter-spacing:.01em}
+.brand small{font:500 16px var(--read);color:var(--muted);margin-left:10px}
+.ctl{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.ctl button,.ctl select{background:#1d292f;color:var(--text);border:1px solid #415058;border-radius:6px;padding:6px 12px;font:600 15px var(--read);cursor:pointer}
+.ctl button:focus-visible,.ctl select:focus-visible,input:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+#scrub{width:240px;accent-color:var(--cook)}
+.clock{font:600 28px/1 var(--sign);font-variant-numeric:tabular-nums;min-width:74px;text-align:right}
+main{padding:14px 20px 24px;max-width:1500px;margin:0 auto}
+
+/* ticket rail */
+.rail{position:relative;display:flex;gap:12px;overflow-x:auto;padding:10px 4px 14px;margin-bottom:14px}
+.rail:before{content:"";position:absolute;left:0;right:0;top:4px;height:8px;border-radius:4px;background:linear-gradient(#b9c4c9,#7d8a90)}
+.chit{position:relative;flex:0 0 190px;background:var(--paper);color:var(--ink);padding:14px 12px 10px;border-radius:2px 2px 6px 6px;
+  box-shadow:0 3px 0 #0003;clip-path:polygon(0 0,100% 0,100% 94%,94% 100%,88% 94%,82% 100%,76% 94%,70% 100%,64% 94%,58% 100%,52% 94%,46% 100%,40% 94%,34% 100%,28% 94%,22% 100%,16% 94%,10% 100%,4% 94%,0 100%)}
+.chit h3{margin:0 0 4px;font:700 24px/1 var(--sign);display:flex;justify-content:space-between}
+.chit h3 span{font-weight:600;font-size:18px;color:#5b6468}
+.chit ul{list-style:none;margin:0;padding:0 0 8px}
+.chit li{display:flex;align-items:center;gap:8px;font-size:15px;padding:1px 0}
+.dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;border:2px solid #0002}
+.s-waiting{background:#c9cfd2}.s-prepped{background:#c9cfd2;border-color:var(--steel)}.s-heating{background:var(--heat)}
+.s-boiling{background:var(--boil)}.s-cooking{background:var(--cook)}.s-ready{background:var(--ready)}.s-plated{background:#4b5a61}
+.chit.served{opacity:.45}
+.chit .sync{font:600 16px var(--sign);color:#5b6468}
+
+/* stove + side */
+.board{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:16px}
+.stove{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#1b262b;padding:14px;border-radius:14px}
+.burner{position:relative;background:var(--enamel-2);border-radius:10px;padding:14px;display:grid;grid-template-columns:132px 1fr;gap:14px;align-items:center;min-height:178px;border:3px solid transparent}
+.burner .name{font:700 22px/1 var(--sign);color:var(--steel-hi)}
+.burner .name small{font:500 15px var(--read);color:var(--muted);margin-left:6px}
+.burner .dish{font:700 30px/1.05 var(--sign);margin:6px 0 4px}
+.burner .prompt{font-size:18px;line-height:1.3}
+.burner .meta{font-size:14px;color:var(--muted);margin-top:4px}
+.burner.go{border-color:var(--ready)}
+.burner.go.blink{animation:blink 1s steps(2,start) infinite}
+.burner.warn{border-color:var(--warn)}
+.burner.warn.blink{animation:blinkw 1s steps(2,start) infinite}
+@keyframes blink{50%{border-color:transparent;background:#3c4f2b}}
+@keyframes blinkw{50%{border-color:transparent;background:#4e4720}}
+.ring{width:132px;height:132px}
+.ring text{font:700 30px var(--sign);fill:var(--text)}
+.ring .sub{font:500 13px var(--read);fill:var(--muted)}
+.side{display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--enamel-2);border-radius:10px;padding:14px 16px}
+.panel h2{margin:0 0 8px;font:700 24px/1 var(--sign);color:var(--steel-hi)}
+.now{border-left:6px solid var(--heat);padding:6px 0 6px 12px;margin-bottom:10px}
+.now b{display:block;font:700 26px/1.1 var(--sign)}
+.now .cut{font-size:18px}
+.bar{height:8px;background:#1b262b;border-radius:4px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--heat)}
+.next{list-style:none;margin:0;padding:0}
+.next li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;padding:6px 0;border-top:1px solid #3a4a52;font-size:15px}
+.next .when{font:600 18px var(--sign);font-variant-numeric:tabular-nums;color:var(--muted)}
+.passrow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid #3a4a52}
+.passrow:first-of-type{border-top:0}
+.passrow b{font:700 22px var(--sign)}
+.pips{display:flex;gap:4px}
+.pips i{width:18px;height:18px;border-radius:4px;background:#1b262b}
+.pips i.on{background:var(--ready)}
+.empty{color:var(--muted)}
+
+/* lower row */
+.lower{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;margin-top:16px}
+.cam video{width:100%;border-radius:8px;background:#000;aspect-ratio:16/9;object-fit:cover;display:block}
+.camgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.camgrid figure{margin:0;position:relative}
+.camgrid figure.off video{opacity:.35;filter:grayscale(1)}
+.camgrid figcaption{font-size:12px;margin-top:4px;line-height:1.3}
+.camgrid figcaption b{font-weight:700}
+.cam p{margin:6px 0 0;font-size:14px;color:var(--muted)}
+.log{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto}
+.log li{padding:8px 0;border-top:1px solid #3a4a52;font-size:15px}
+.log li:first-child{border-top:0}
+.log time{font:600 17px var(--sign);color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}
+.log .cam-ev{color:var(--cook)} .log .act{color:var(--warn)}
+.log .chg{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+
+/* pairing */
+dialog{background:var(--enamel-2);color:var(--text);border:0;border-radius:12px;padding:20px 24px;max-width:min(980px,94vw)}
+dialog::backdrop{background:#0009}
+dialog h2{margin:0 0 6px;font:700 28px var(--sign)}
+.qrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;margin:16px 0}
+.qrs a{display:block;text-align:center;color:var(--text);text-decoration:none;font:700 20px var(--sign)}
+.qrs img{width:100%;background:#fff;border-radius:8px;padding:6px;margin-bottom:6px}
+.close{background:var(--cook);color:var(--ink);border:0;border-radius:8px;padding:8px 18px;font:700 18px var(--read);cursor:pointer}
+/* results */
+#results{display:none}
+#results.on{display:block}
+.cmp{width:100%;border-collapse:collapse;font-size:16px}
+.cmp th,.cmp td{padding:8px 10px;text-align:right;border-bottom:1px solid #3a4a52}
+.cmp th:first-child,.cmp td:first-child{text-align:left}
+.cmp td.best{color:var(--ready);font-weight:700}
+.note{color:var(--muted);font-size:14px;max-width:75ch}
+
+@media (max-width:1000px){.board,.lower{grid-template-columns:1fr}}
+@media (max-width:640px){
+  main{padding:12px 16px}.stove{grid-template-columns:1fr}.burner{grid-template-columns:96px 1fr}.ring{width:96px;height:96px}
+  #scrub{width:140px}.brand small{display:none}
+}
+@media (prefers-reduced-motion:reduce){.burner.blink{animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Tempo<small>Every dish on the ticket, ready together.</small></div>
+  <div class="ctl">
+    <button id="play" aria-label="Play or pause">Pause</button>
+    <select id="speed" aria-label="Playback speed"><option value="1">1×</option><option value="5">5×</option><option value="10" selected>10×</option><option value="30">30×</option></select>
+    <input type="range" id="scrub" min="0" max="0" value="0" aria-label="Service time">
+    <span class="clock" id="clock">0:00</span>
+    <button id="tab" aria-pressed="false">Results</button>
+    <button id="pair">Station screens</button>
+  </div>
+</header>
+<main>
+  <section id="live">
+    <div class="rail" id="rail" aria-label="Tickets"></div>
+    <div class="board">
+      <div class="stove" id="stove" aria-label="Burners"></div>
+      <div class="side">
+        <section class="panel" aria-labelledby="h-prep"><h2 id="h-prep">Prep board</h2><div id="prep"></div></section>
+        <section class="panel" aria-labelledby="h-pass"><h2 id="h-pass">Pass</h2><div id="pass"></div></section>
+      </div>
+    </div>
+    <div class="lower">
+      <section class="panel cam" aria-labelledby="h-cam"><h2 id="h-cam">Cameras · one per burner</h2><div class="camgrid" id="camgrid"></div><p id="camnote" class="note">Each clip drives the timeline of the pot it watches (perception on simulated footage, labelled in frame).</p></section>
+      <section class="panel" aria-labelledby="h-log"><h2 id="h-log">Why the plan changed</h2><ul class="log" id="log"></ul></section>
+    </div>
+  </section>
+  <section id="results" class="panel" aria-labelledby="h-res">
+    <h2 id="h-res">Same orders, three kitchens</h2>
+    <p class="note">The same six tickets run through a simulated kitchen (one cook, four burners of unknown real power). "Fire on order" is what a plain kitchen display does. "Fixed schedule" plans each ticket with recipe-card heat-up times. Tempo plans with what the camera sees in the pots.</p>
+    <table class="cmp" id="cmp"></table>
+    <h2 style="margin-top:22px">Across many services</h2>
+    <div id="evalbox" class="note">Loading…</div>
+  </section>
+</main>
+<dialog id="stations" aria-labelledby="h-st">
+  <h2 id="h-st">Put a screen at every station</h2>
+  <p class="note">Scan with any phone or tablet mounted at that spot. Each screen shows only its own station and follows the same service clock.</p>
+  <div class="qrs" id="qrs"></div>
+  <form method="dialog"><button class="close">Done</button></form>
+</dialog>
+<script>
+const $ = s => document.querySelector(s);
+const fmt = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
+const nice = d => d.replace('_',' ');
+let R = null, i = 0, playing = true, last = performance.now(), acc = 0;
+
+async function load(){
+  const r = await fetch('/api/replay?seed=140'); R = await r.json();
+  $('#scrub').max = R.frames.length - 1;
+  setupCams(R.meta.videos);
+  requestAnimationFrame(loop);
+}
+function loop(now){
+  const dt = (now - last) / 1000; last = now;
+  if (playing && R){
+    acc += dt * Number($('#speed').value) / R.meta.step;
+    if (acc >= 1){ i = Math.min(R.frames.length - 1, i + Math.floor(acc)); acc %= 1; $('#scrub').value = i; draw(); }
+    if (i >= R.frames.length - 1) setPlay(false);
+  }
+  requestAnimationFrame(loop);
+}
+function setPlay(p){ playing = p; $('#play').textContent = p ? 'Pause' : 'Play'; if(!p) document.querySelectorAll('#camgrid video').forEach(v=>v.pause()); }
+let CAMS = [];
+function setupCams(vs){
+  vs = (vs || []).slice().sort((a,b) => a.burner.localeCompare(b.burner));
+  if (!vs.length){ $('#camgrid').closest('section').style.display = 'none'; return; }
+  CAMS = vs;
+  $('#camgrid').innerHTML = vs.map((v,k) => { const base = v.clip.replace(/\.mp4$/, '');
+    return `<figure id="cam${k}" class="off"><video muted playsinline preload="auto"><source src="${base}.webm" type="video/webm"><source src="${base}.mp4" type="video/mp4"></video><figcaption></figcaption></figure>`; }).join('');
+}
+$('#play').onclick = () => { if (i >= R.frames.length - 1) i = 0; setPlay(!playing); };
+$('#scrub').oninput = e => { i = Number(e.target.value); draw(); };
+
+function ring(card){
+  const C = 2 * Math.PI * 54, p = card.progress ?? 0;
+  const col = {heating:'var(--heat)', boiling:'var(--boil)', cooking:'var(--cook)', done:'var(--ready)'}[card.phase] || 'var(--steel)';
+  let big = '', sub = '';
+  if (card.phase === 'heating'){ big = fmt(card.eta_s); sub = 'to boil'; }
+  else if (card.phase === 'boiling'){ big = 'Boil'; sub = ''; }
+  else if (card.phase === 'cooking'){ big = Math.round(p*100)+'%'; sub = 'cooked'; }
+  else if (card.phase === 'done'){ big = 'Done'; }
+  else { big = 'Off'; }
+  return `<svg class="ring" viewBox="0 0 132 132" aria-hidden="true">
+    <circle cx="66" cy="66" r="54" fill="none" stroke="#1b262b" stroke-width="14"/>
+    <circle cx="66" cy="66" r="54" fill="none" stroke="${col}" stroke-width="14" stroke-linecap="round"
+      stroke-dasharray="${C*p} ${C}" transform="rotate(-90 66 66)"/>
+    ${[...Array(12)].map((_,k)=>`<line x1="66" y1="4" x2="66" y2="10" stroke="#415058" stroke-width="3" transform="rotate(${k*30} 66 66)"/>`).join('')}
+    <text x="66" y="${sub?70:76}" text-anchor="middle">${big}</text>${sub?`<text class="sub" x="66" y="90" text-anchor="middle">${sub}</text>`:''}</svg>`;
+}
+
+function draw(){ render(R.frames[i], R.events); }
+function render(F, EV){
+  const t = F.t;
+  $('#clock').textContent = fmt(t);
+  // rail
+  $('#rail').innerHTML = F.pass.map(p => `<article class="chit ${p.served?'served':''}">
+     <h3>${p.ticket}<span>${p.served ? 'served' : fmt(p.age_s)}</span></h3>
+     <ul>${p.items.map(x => `<li><span class="dot s-${x.state}" title="${x.state}"></span>${nice(x.dish)}</li>`).join('')}</ul>
+     <div class="sync">${p.served ? 'Order up' : p.target_in != null ? 'All ready in ' + fmt(p.target_in) : ''}</div></article>`).join('')
+     || '<p class="empty">No open tickets.</p>';
+  // burners
+  $('#stove').innerHTML = F.burners.map(b => `<div class="burner ${b.level} ${b.blink?'blink':''}" role="status">
+     ${ring(b)}<div><div class="name">${b.name}<small>${b.kw} kW</small></div>
+     <div class="dish">${b.item ? b.item.ticket + ' ' + nice(b.item.dish) : (b.next ? 'Free' : 'Free')}</div>
+     <div class="prompt">${b.prompt || 'Nothing planned'}</div>
+     ${b.phase==='heating' ? `<div class="meta">${['still','shimmer','simmer'][b.stage]||''} · estimate from ${b.basis}</div>` : ''}</div></div>`).join('');
+  // prep
+  const pn = F.prep_now;
+  $('#prep').innerHTML = (pn ? `<div class="now"><b>${pn.ticket} ${nice(pn.dish)}</b><div class="cut">${pn.note}</div>
+      <div class="bar"><i style="width:${Math.round(pn.progress*100)}%"></i></div></div>` : '<p class="empty">Nothing to cut right now.</p>')
+    + (F.prep_next.length ? `<ul class="next">${F.prep_next.map(n => `<li><b>${n.ticket}</b><span>${nice(n.dish)}: ${n.note}</span><span class="when">${n.in_s>5?'in '+fmt(n.in_s):'now'}</span></li>`).join('')}</ul>` : '');
+  // pass
+  const open = F.pass.filter(p => !p.served);
+  $('#pass').innerHTML = open.length ? open.map(p => `<div class="passrow"><b>${p.ticket}</b>
+     <span class="pips">${[...Array(p.n)].map((_,k)=>`<i class="${k<p.plated?'on':''}"></i>`).join('')}</span>
+     <span>${p.plated}/${p.n} plated</span></div>`).join('') : '<p class="empty">Pass is clear.</p>';
+  // log
+  const ev = EV.filter(e => e.t <= t && (e.kind==='replan' && e.reason.startsWith('camera') || e.kind==='stage' || e.kind==='auto_heat_down' || e.kind==='served' || e.kind==='order'))
+               .slice(-14).reverse();
+  $('#log').innerHTML = ev.map(e => {
+    if (e.kind==='order') return `<li><time>${fmt(e.t)}</time>New ticket ${e.ticket}: ${e.items.map(nice).join(', ')}</li>`;
+    if (e.kind==='served') return `<li><time>${fmt(e.t)}</time>${e.ticket} went out together</li>`;
+    if (e.kind==='stage') return `<li class="cam-ev"><time>${fmt(e.t)}</time>Camera: ${e.burner} ${nice(e.dish)} ${['','shimmer','simmer','rolling boil'][e.stage]}${e.stage<3 ? ' · boil predicted at ' + fmt(e.eta) : ' · detected'}</li>`;
+    if (e.kind==='auto_heat_down') return `<li class="act"><time>${fmt(e.t)}</time>Foam rising on ${e.burner} (${e.ticket} ${nice(e.dish)}): heat lowered before it boiled over</li>`;
+    const ch = e.changes.slice(0,3).map(c => `${c.ticket} ${nice(c.dish)} ${c.step} ${c.shift_s>0?'+':''}${c.shift_s}s`).join(', ');
+    return `<li><time>${fmt(e.t)}</time>Plan updated after ${e.reason.split(':')[1].split(',')[0].trim().replace(/_/g,' ')}<span class="chg">Moved ${e.changes.length} step${e.changes.length>1?'s':''}: ${ch}${e.changes.length>3?' …':''}</span></li>`;
+  }).join('');
+  // every camera clip in sync with the pot it drives
+  CAMS.forEach((v,k) => {
+    const fig = document.getElementById('cam'+k); if (!fig) return;
+    const vid = fig.querySelector('video'), cap = fig.querySelector('figcaption');
+    const ct = t - v.t_load, live = ct >= 0 && ct <= (vid.duration || 1e9);
+    fig.classList.toggle('off', !live);
+    if (live){
+      cap.innerHTML = `<b>${v.burner}</b> · ${v.key[0]} ${nice(v.dish)} · camera ${fmt(ct)}`;
+      if (Math.abs(vid.currentTime - ct) > 1.5) vid.currentTime = ct;
+      vid.playbackRate = Math.min(16, Number($('#speed').value));
+      if (playing && vid.paused) vid.play().catch(()=>{});
+      if (!playing) vid.pause();
+    } else {
+      vid.pause();
+      cap.innerHTML = `<b>${v.burner}</b> · ${nice(v.dish)} · ${ct < 0 ? 'waiting for the pot' : 'clip finished'}`;
+    }
+  });
+}
+
+$('#tab').onclick = async () => {
+  const on = !$('#results').classList.contains('on');
+  $('#results').classList.toggle('on', on); $('#live').style.display = on ? 'none' : '';
+  $('#tab').textContent = on ? 'Live board' : 'Results'; $('#tab').setAttribute('aria-pressed', on);
+  if (on && !$('#cmp').dataset.done){
+    const c = await (await fetch('/api/compare?seed=140')).json();
+    const rows = [['Food waiting after cooking (avg)','food_wait_mean_s',true],['Worst 10% wait','food_wait_p90_s',true],
+                  ['Order to table (avg)','lead_mean_s',true],['Boil-overs','boilovers',true]];
+    const cols = [['fifo','Fire on order'],['plan_fixed','Fixed schedule'],['tempo','Tempo']];
+    $('#cmp').innerHTML = `<tr><th></th>${cols.map(c=>`<th>${c[1]}</th>`).join('')}</tr>` + rows.map(([lab,k]) => {
+      const vals = cols.map(([p]) => c[p][k]); const best = Math.min(...vals);
+      return `<tr><td>${lab}</td>${vals.map(v=>`<td class="${v===best?'best':''}">${k==='boilovers'?v:fmt(v)}</td>`).join('')}</tr>`; }).join('');
+    $('#cmp').dataset.done = 1;
+    const e = await (await fetch('/api/eval')).json();
+    let h = '';
+    if (e.kitchen){
+      const names = {fifo:'Fire on order', plan_fixed:'Fixed schedule', plan_alert:'Camera, boil alerts only', tempo:'Tempo'};
+      for (const [cond, label] of [['calm','Quiet service (tickets far apart)'],['rush','Rush (a ticket every 5 min)']]){
+        const c = e.kitchen[cond]; if (!c) continue;
+        h += `<h3 style="font:700 20px var(--sign);margin:14px 0 4px">${label}</h3><table class="cmp"><tr><th></th><th>Food waiting (avg)</th><th>Worst 10%</th><th>Order to table</th><th>Boil-overs per 100 dishes</th></tr>` +
+          Object.entries(names).map(([p,n]) => c[p] ? `<tr><td>${n}</td><td>${fmt(c[p].food_wait_mean_s)}</td><td>${fmt(c[p].food_wait_p90_s)}</td><td>${fmt(c[p].lead_mean_s)}</td><td>${c[p].boilovers_per_100_dishes}</td></tr>` : '').join('') + '</table>';
+      }
+    }
+    const v = e.vision && (e.vision.realistic || e.vision.h264 || e.vision.raw);
+    if (v){
+      h += `<h3 style="font:700 20px var(--sign);margin:18px 0 4px">Boil prediction on held-out simulated pots (${v.clips} clips, photo-realistic renderer)</h3><table class="cmp"><tr><th></th><th>Recipe card / nameplate</th><th>Tempo camera</th></tr>` +
+        [120,60,30].map(s => `<tr><td>Error ${s} s before the boil</td><td>±${v['mae_'+s+'s_before_boil'].nameplate} s</td><td>±${v['mae_'+s+'s_before_boil'].vision} s</td></tr>`).join('') +
+        `<tr><td>Rolling boil detected</td><td>–</td><td>${v.boil_detected}, within ${v.boil_detect_delay_s ? v.boil_detect_delay_s.max_abs : '–'} s</td></tr>` +
+        `<tr><td>Foam surge warned before overflow</td><td>–</td><td>${v.foam_warned_in_time}, ${v.foam_mean_lead_s} s ahead, ${v.foam_false_alarms} false alarms</td></tr></table>`;
+    }
+    $('#evalbox').innerHTML = h || 'Evaluation not run yet.';
+  }
+};
+$('#pair').onclick = async () => {
+  const names = {prep:'Prep board', line:'Burner line (long strip)', B1:'Burner 1', B2:'Burner 2', B3:'Burner 3', B4:'Burner 4', pass:'Pass'};
+  $('#qrs').innerHTML = Object.entries(names).map(([k,n]) =>
+    `<a href="/station/${k}" target="_blank" rel="noopener"><img src="/api/qr?path=/station/${k}" alt="QR code for ${n}">${n}</a>`).join('')
+    + `<a href="/board" target="_blank" rel="noopener" style="align-self:center">Whole-kitchen board (live)</a>`
+    + `<a href="/leds" target="_blank" rel="noopener" style="align-self:center">LED ring simulation</a>`;
+  await fetch('/api/live/start?seed=140&speed=' + $('#speed').value, {method:'POST'});
+  $('#stations').showModal();
+};
+document.addEventListener('keydown', e => { if (e.code==='Space' && e.target===document.body){ e.preventDefault(); $('#play').click(); } });
+const LIVE_MODE = location.pathname === '/board';
+async function liveTick(){
+  try {
+    const d = await (await fetch('/api/live/frame')).json();
+    if (!CAMS.length && d.videos) setupCams(d.videos);
+    $('#speed').value = String(d.speed);
+    render(d.frame, d.events);
+  } catch (e) {}
+}
+if (LIVE_MODE){
+  document.title = 'Tempo kitchen board (live)';
+  ['#play','#speed','#scrub'].forEach(q => $(q).style.display = 'none');
+  $('.brand small').textContent = 'Whole kitchen, live';
+  fetch('/api/replay?seed=140');   // warm cache
+  liveTick(); setInterval(liveTick, 1000);
+} else {
+  load();
+}
+</script>
+</body>
+</html>

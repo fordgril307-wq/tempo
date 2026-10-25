@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b262b">
+<title>Tempo burner line</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--enamel:#26343b;--rail:#1b262b;--heat:#f2a541;--boil:#e4572e;--cook:#2ec4b6;--ready:#8ac926;--warn:#ffd23f;--ink:#1d2326;--text:#f4f7f8;--muted:#b8c4ca;
+  --sign:"Barlow Condensed",system-ui,sans-serif;--read:"Atkinson Hyperlegible",system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--rail);color:var(--text);font-family:var(--read);overflow:hidden;display:flex;flex-direction:column}
+.bar{display:flex;align-items:baseline;gap:2vw;padding:.8vh 1.2vw;font:700 clamp(16px,2.6vh,30px)/1.1 var(--sign);color:var(--muted)}
+.bar .next{flex:1;font:400 clamp(14px,2.3vh,26px) var(--read);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .next b{color:var(--text)}
+.bar .clock{font-variant-numeric:tabular-nums}
+.line{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:.6vw;padding:0 .6vw .6vw}
+.col{position:relative;border-radius:8px;overflow:hidden;background:var(--enamel);display:flex;flex-direction:column;padding:1.6vh 1.2vw;min-width:0}
+.fill{position:absolute;left:0;right:0;bottom:0;transition:height .9s linear}
+.col>*:not(.fill){position:relative}
+.nm{display:flex;justify-content:space-between;font:700 clamp(16px,3.6vh,40px)/1 var(--sign);opacity:.85}
+.who{font:700 clamp(20px,6vh,72px)/1 var(--sign);margin-top:1vh;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.big{font:700 clamp(36px,20vh,220px)/.9 var(--sign);font-variant-numeric:tabular-nums;margin-top:auto}
+.do{font:700 clamp(18px,6vh,68px)/1 var(--sign);margin-top:auto}
+.sub{font-size:clamp(12px,2.4vh,26px);opacity:.85;margin-top:.6vh;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dark{color:var(--ink)}
+.flash{animation:flash 1s steps(2,start) infinite}
+@keyframes flash{50%{filter:brightness(1.55) saturate(.6)}}
+@media (prefers-reduced-motion:reduce){.flash{animation:none;box-shadow:inset 0 0 0 10px #fff}}
+@media (max-aspect-ratio:1/1){.line{grid-auto-flow:row;grid-auto-rows:1fr}}
+#gate{position:fixed;inset:0;background:var(--rail);display:flex;flex-direction:column;gap:16px;align-items:center;justify-content:center;text-align:center;padding:16px;z-index:3}
+#gate button{font:700 30px var(--sign);padding:14px 36px;border:0;border-radius:12px;background:var(--cook);color:var(--ink);cursor:pointer}
+#gate button:focus-visible{outline:4px solid var(--warn);outline-offset:4px}
+#gate p{color:var(--muted);max-width:52ch}
+</style>
+</head>
+<body>
+<div class="bar"><span id="title">Burner line</span><span class="next" id="next"></span><span class="clock" id="clock"></span></div>
+<div class="line" id="line"></div>
+<div id="gate"><div style="font:700 48px var(--sign)">Burner line</div>
+  <p>For a long, thin screen mounted above a row of burners. Columns follow the burners left to right; set the order with <b>?b=B1,B2,B3,B4</b>.</p>
+  <button id="go">Start</button></div>
+<script>
+const $ = s => document.querySelector(s);
+const fmt = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
+const nice = d => (d||'').replace('_',' ');
+const order = (new URLSearchParams(location.search).get('b') || 'B1,B2,B3,B4').split(',').map(x => x.trim()).filter(Boolean);
+$('#title').textContent = `Burners ${order.join(' · ')}`;
+let audio = null, lastCue = '';
+$('#go').onclick = async () => {
+  try { audio = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+  try { await navigator.wakeLock?.request('screen'); } catch (e) {}
+  $('#gate').remove(); tick(); setInterval(tick, 1000);
+};
+if (new URLSearchParams(location.search).get('embed')) { $('#gate').remove(); tick(); setInterval(tick, 1000); }
+function chime(){ if (!audio) return; const o = audio.createOscillator(), g = audio.createGain();
+  o.frequency.value = 880; g.gain.setValueAtTime(.25, audio.currentTime); g.gain.exponentialRampToValueAtTime(.001, audio.currentTime + .5);
+  o.connect(g).connect(audio.destination); o.start(); o.stop(audio.currentTime + .5); }
+const COL = {heating:'var(--heat)', boiling:'var(--boil)', cooking:'var(--cook)', done:'var(--ready)', loading:'var(--heat)'};
+async function tick(){
+  let d; try { d = await (await fetch('/api/live/frame')).json(); } catch (e) { return; }
+  const F = d.frame, cards = order.map(n => F.burners.find(b => b.name === n)).filter(Boolean);
+  $('#clock').textContent = fmt(F.t);
+  const nxt = cards.filter(c => !c.item && c.next).map(c => `<b>${c.next.ticket} ${nice(c.next.dish)}</b> → ${c.name} (${c.next.liquid})`);
+  $('#next').innerHTML = nxt.length ? 'Next on this line: ' + nxt.join(' · ') : '';
+  let cue = [];
+  $('#line').innerHTML = cards.map(c => {
+    const warn = c.level === 'warn', solid = ['boiling','done'].includes(c.phase) || warn;
+    const bg = warn ? 'var(--warn)' : solid ? COL[c.phase] : 'var(--enamel)';
+    const fillH = (c.phase === 'heating' || c.phase === 'cooking') ? Math.round((c.progress||0)*100) : 0;
+    let big = '', act = '';
+    if (c.phase === 'heating'){ big = fmt(c.eta_s); act = 'to boil'; }
+    else if (c.phase === 'cooking'){ big = fmt(c.prompt.match(/(\d+:\d+) left/)?.[1].split(':').reduce((a,b)=>a*60+ +b) ?? 0); act = 'cooking'; }
+    else if (c.phase === 'boiling'){ act = c.blink ? 'Add now' : 'Boiling, hold'; }
+    else if (c.phase === 'done'){ act = 'Plate now'; }
+    else if (c.blink){ act = 'Load now'; }
+    if (warn) act = 'Foam: heat lowered';
+    if (c.blink) cue.push(c.name + act);
+    const who = c.item ? `${c.item.ticket} · ${nice(c.item.dish)}` : (c.next ? `Next: ${c.next.ticket} ${nice(c.next.dish)}` : 'Free');
+    const sub = c.phase === 'heating' ? `±${c.eta_pm}s · ${c.basis}` : c.phase === 'empty' ? (c.prompt || 'Nothing planned') : (c.prompt || '');
+    return `<section class="col ${solid ? 'dark' : ''} ${c.blink ? 'flash' : ''}" style="background:${bg}" aria-label="${c.name}">
+      <div class="fill" style="height:${fillH}%;background:${COL[c.phase] || 'transparent'};opacity:.9"></div>
+      <div class="nm"><span>${c.name}</span><span>${c.kw} kW</span></div>
+      <div class="who">${who}</div>
+      ${big ? `<div class="big">${big}</div>` : ''}
+      <div class="do" ${big ? 'style="margin-top:.4vh"' : ''}>${act || (c.item ? '' : 'Off')}</div>
+      <div class="sub">${sub}</div></section>`;
+  }).join('');
+  const k = cue.join('|');
+  if (k && k !== lastCue) chime();
+  lastCue = k;
+}
+</script>
+</body>
+</html>

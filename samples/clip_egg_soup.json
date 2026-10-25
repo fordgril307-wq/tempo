@@ -1,0 +1,15 @@
+{
+ "burner": "auto",
+ "dish": "egg_soup",
+ "clip": "/clips/clip_egg_soup.mp4",
+ "boil_s": 263.78,
+ "boil_detect_s": 267.0,
+ "stages": {
+  "1": 164.0,
+  "2": 223.0
+ },
+ "add_s": 270,
+ "foam_warn_s": null,
+ "heat_down_s": null,
+ "source": "simulated footage (photo-realistic renderer), labelled in frame"
+}

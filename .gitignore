@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+data/
+dist/
+media/private/
+media/build/
+media/scenes/
